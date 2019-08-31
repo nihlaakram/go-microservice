@@ -15,3 +15,6 @@
 
 # Script with environment variables
 exportvar.sh
+
+# Executable built
+build/
