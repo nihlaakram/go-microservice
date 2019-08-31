@@ -1,4 +1,8 @@
-package model
+/*
+ * Copyright (c) 2019, Nihla Akram. All Rights Reserved.
+ */
+
+ package model
 
 import "database/sql"
 

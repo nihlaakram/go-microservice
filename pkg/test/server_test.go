@@ -1,4 +1,6 @@
-package test
+/*
+ * Copyright (c) 2019, Nihla Akram. All Rights Reserved.
+ */package test
 
 import (
 	"github.com/nihlaakram/go-microservice/pkg/service"
@@ -7,8 +9,6 @@ import (
 	"os"
 	"testing"
 )
-
-
 
 const deleteTableData = "DELETE FROM articles"
 const resetArticleId = "ALTER TABLE articles AUTO_INCREMENT = 1"
@@ -28,7 +28,6 @@ func TestMain(m *testing.M) {
 	deleteTableEntries()
 	os.Exit(code)
 }
-
 
 func deleteTableEntries() {
 	server.DBCon.Exec(deleteTableData)

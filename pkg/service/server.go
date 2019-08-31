@@ -1,4 +1,8 @@
-package service
+/*
+ * Copyright (c) 2019, Nihla Akram. All Rights Reserved.
+ */
+
+ package service
 
 import (
 	"database/sql"
@@ -43,7 +47,6 @@ func (service *Server) Init(dbUser, dbPass, dbName, hostname, mysqlPort string) 
 	service.Router = mux.NewRouter()
 	service.initResource()
 }
-
 
 // Start the server in given port
 func (service *Server) Start(port int) {

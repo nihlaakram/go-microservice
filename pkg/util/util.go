@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019, Nihla Akram. All Rights Reserved.
+ */
+
 package util
 
 const ContentType = "Content-Type"

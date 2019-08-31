@@ -1,4 +1,8 @@
-package test
+/*
+ * Copyright (c) 2019, Nihla Akram. All Rights Reserved.
+ */
+
+ package test
 
 import (
 	"bytes"
