@@ -18,20 +18,25 @@ type Server struct {
 	DBCon  *sql.DB
 }
 
+// Initialize database connection and server route
 func (service *Server) Init(dbUser, dbPass, dbName, hostname, mysqlPort string) {
 
 	var err error
+	log.Println(util.ConnectingDB)
 	service.DBCon, err = sql.Open("mysql", dbUser+":"+dbPass+"@tcp("+hostname+":"+mysqlPort+")/"+dbName)
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		log.Println(util.DBConnectionSuccess)
 	}
 
 	service.Router = mux.NewRouter()
 	service.initResource()
 }
 
+// Start the serverin given port
 func (service *Server) Start(port int) {
-
+	log.Println(fmt.Sprintf(util.StartingServer, port))
 	err := http.ListenAndServe(fmt.Sprintf(":%v", port), service.Router)
 	if err != nil {
 		log.Fatal(err)
@@ -39,12 +44,16 @@ func (service *Server) Start(port int) {
 	http.Handle("/", service.Router)
 }
 
+// Initialize resource URLs
 func (service *Server) initResource() {
+	log.Println(util.DeployingResources)
 	service.Router.HandleFunc(fmt.Sprintf("/%v", util.ArticlesResource), service.addArticle).Methods(http.MethodPost)
 	service.Router.HandleFunc(fmt.Sprintf("/%v", util.ArticlesResource), service.getAllArticles).Methods(http.MethodGet)
-	service.Router.HandleFunc("/articles/{id:[0-9]+}", service.getArticleByID).Methods(http.MethodGet)
+	service.Router.HandleFunc(fmt.Sprintf("/%v/{id:[0-9]+}", util.ArticlesResource), service.getArticleByID).Methods(http.MethodGet)
+	log.Println(util.ResourcesDepSuccess)
 }
 
+// Handle POST requests of pattern /articles
 func (service *Server) addArticle(w http.ResponseWriter, r *http.Request) {
 	var article model.Article
 	body := json.NewDecoder(r.Body)
@@ -52,7 +61,15 @@ func (service *Server) addArticle(w http.ResponseWriter, r *http.Request) {
 		failureResponse(w, http.StatusBadRequest, util.BadRequestMsg)
 		return
 	}
-	defer r.Body.Close()
+	//defer r.Body.Close()
+
+	func() {
+		err := r.Body.Close()
+		if err != nil {
+			failureResponse(w, http.StatusInternalServerError, err.Error())
+			log.Fatal(err)
+		}
+	}()
 
 	if article.Title == "" || article.Content == "" || article.Author == "" {
 		failureResponse(w, http.StatusBadRequest, util.BadRequestMsg)
@@ -62,9 +79,10 @@ func (service *Server) addArticle(w http.ResponseWriter, r *http.Request) {
 		failureResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	writeResponse(w, http.StatusCreated, util.SuccessMsg, model.ArticleId{article.Id})
+	writeResponse(w, http.StatusCreated, util.SuccessMsg, model.ArticleId{Id: article.Id})
 }
 
+// Handle GET requests of pattern /articles/{id}
 func (service *Server) getArticleByID(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -89,6 +107,7 @@ func (service *Server) getArticleByID(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, http.StatusOK, util.SuccessMsg, article)
 }
 
+// Handle GET requests of pattern /articles
 func (service *Server) getAllArticles(w http.ResponseWriter, r *http.Request) {
 	articles, err := model.GetAllArticles(service.DBCon)
 	if err != nil {
@@ -99,15 +118,20 @@ func (service *Server) getAllArticles(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Generate failed response
 func failureResponse(w http.ResponseWriter, code int, message string) {
 	writeResponse(w, code, message, nil)
 }
 
+// write response
 func writeResponse(w http.ResponseWriter, code int, message string, data interface{}) {
-	response := model.Response{code, message, data}
+	response := model.Response{Status: code, Message: message, Data: data}
 	payload, _ := json.Marshal(response)
 
 	w.Header().Set(util.ContentType, util.ApplicationJson)
 	w.WriteHeader(code)
-	w.Write(payload)
+	_, err := w.Write(payload)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
