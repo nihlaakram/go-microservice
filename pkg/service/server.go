@@ -2,7 +2,7 @@
  * Copyright (c) 2019, Nihla Akram. All Rights Reserved.
  */
 
- package service
+package service
 
 import (
 	"database/sql"
@@ -63,7 +63,7 @@ func (service *Server) initResource() {
 	log.Println(util.DeployingResources)
 	service.Router.HandleFunc(fmt.Sprintf("/%v", util.ArticlesResource), service.addArticle).Methods(http.MethodPost)
 	service.Router.HandleFunc(fmt.Sprintf("/%v", util.ArticlesResource), service.getAllArticles).Methods(http.MethodGet)
-	service.Router.HandleFunc(fmt.Sprintf("/%v/{id:[0-9]+}", util.ArticlesResource), service.getArticleByID).Methods(http.MethodGet)
+	service.Router.HandleFunc(fmt.Sprintf("/%v/{id}", util.ArticlesResource), service.getArticleByID).Methods(http.MethodGet)
 	log.Println(util.ResourcesDepSuccess)
 }
 
