@@ -1,9 +1,7 @@
 package test
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/nihlaakram/go-microservice/pkg/model"
 	"github.com/nihlaakram/go-microservice/pkg/util"
 	"net/http"
 	"testing"
@@ -17,10 +15,9 @@ func TestEmptyTable(t *testing.T) {
 
 	checkResponseCode(t, http.StatusOK, response.Code)
 
-	expectedResponse, err := json.Marshal(&model.Response{http.StatusOK, util.SuccessMsg, []model.Article{}})
-	if body := response.Body.String(); body != string(expectedResponse) {
+	//expectedResponse, err := json.Marshal(&model.Response{http.StatusBadRequest, util.SuccessMsg, []model.Article{}})
+	expectedResponse := `{"status":200,"message":"Success","data":[]}`
+	if body := response.Body.String(); body != expectedResponse {
 		t.Errorf("Expected %s. Got %s", expectedResponse, body)
-	} else if err != nil {
-		t.Error(err)
 	}
 }

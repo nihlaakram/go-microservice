@@ -2,19 +2,16 @@ package test
 
 import (
 	"github.com/nihlaakram/go-microservice/pkg/service"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 )
 
-const tableCreationQuery = `CREATE TABLE IF NOT EXISTS articles (
-		id INT NOT NULL AUTO_INCREMENT,
-		title VARCHAR(45) NULL,
-		content TEXT NULL,
-		author VARCHAR(45) NULL,
-	PRIMARY KEY (id));`
+
+
+const deleteTableData = "DELETE FROM articles"
+const resetArticleId = "ALTER TABLE articles AUTO_INCREMENT = 1"
 
 var server service.Server
 
@@ -25,22 +22,17 @@ func TestMain(m *testing.M) {
 	dbUser := os.Getenv("TEST_DB_USER")
 	dbHost := os.Getenv("TEST_DB_HOST")
 	dbPort := os.Getenv("TEST_DB_PORT")
+
 	server.Init(dbUser, dbPass, dbName, dbHost, dbPort)
-	checkIfTableExists()
 	code := m.Run()
 	deleteTableEntries()
 	os.Exit(code)
 }
 
-func checkIfTableExists() {
-	if _, err := server.DBCon.Exec(tableCreationQuery); err != nil {
-		log.Fatal(err)
-	}
-}
 
 func deleteTableEntries() {
-	server.DBCon.Exec("DELETE FROM articles")
-	server.DBCon.Exec("ALTER TABLE articles AUTO_INCREMENT = 1")
+	server.DBCon.Exec(deleteTableData)
+	server.DBCon.Exec(resetArticleId)
 }
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
