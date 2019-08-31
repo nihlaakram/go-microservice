@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 2019, Nihla Akram. All Rights Reserved.
- */package test
+ */
+
+package test
 
 import (
 	"github.com/nihlaakram/go-microservice/pkg/service"
