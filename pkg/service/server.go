@@ -36,11 +36,12 @@ func (service *Server) Start(port int) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	http.Handle("/", service.Router)
 }
 
 func (service *Server) initResource() {
-	service.Router.HandleFunc("/articles", service.addArticle).Methods(http.MethodPost)
-	service.Router.HandleFunc("/articles", service.getAllArticles).Methods(http.MethodGet)
+	service.Router.HandleFunc(fmt.Sprintf("/%v", util.ArticlesResource), service.addArticle).Methods(http.MethodPost)
+	service.Router.HandleFunc(fmt.Sprintf("/%v", util.ArticlesResource), service.getAllArticles).Methods(http.MethodGet)
 	service.Router.HandleFunc("/articles/{id:[0-9]+}", service.getArticleByID).Methods(http.MethodGet)
 }
 
@@ -48,32 +49,45 @@ func (service *Server) addArticle(w http.ResponseWriter, r *http.Request) {
 	var article model.Article
 	body := json.NewDecoder(r.Body)
 	if err := body.Decode(&article); err != nil {
-		failureResponse(w, http.StatusBadRequest, err.Error())
+		failureResponse(w, http.StatusBadRequest, util.BadRequestMsg)
 		return
 	}
 	defer r.Body.Close()
 
+	if article.Title == "" || article.Content == "" || article.Author == "" {
+		failureResponse(w, http.StatusBadRequest, util.BadRequestMsg)
+		return
+	}
 	if err := article.AddArticle(service.DBCon); err != nil {
 		failureResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	writeResponse(w, http.StatusCreated, util.SuccessMsg, article.Id)
+	writeResponse(w, http.StatusCreated, util.SuccessMsg, model.ArticleId{article.Id})
 }
 
 func (service *Server) getArticleByID(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	id, _ := strconv.ParseInt(vars["id"], 0, 0)
-
-	article := model.Article{Id: id}
-	err := article.GetArticleById(service.DBCon)
+	id, err := strconv.ParseInt(vars["id"], 0, 0)
 	if err != nil {
-		failureResponse(w, http.StatusInternalServerError, err.Error())
+		failureResponse(w, http.StatusBadRequest, util.InvalidArticleIdMsg)
 		return
 	}
-	writeResponse(w, http.StatusOK, "Success", article)
+	article := model.Article{Id: id}
+	err = article.GetArticleById(service.DBCon)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			failureResponse(w, http.StatusNotFound, util.ArticleNotFoundMsg)
+			break
+		default:
+			failureResponse(w, http.StatusInternalServerError, err.Error())
+			break
+		}
+		return
+	}
+	writeResponse(w, http.StatusOK, util.SuccessMsg, article)
 }
-
 
 func (service *Server) getAllArticles(w http.ResponseWriter, r *http.Request) {
 	articles, err := model.GetAllArticles(service.DBCon)
@@ -81,7 +95,7 @@ func (service *Server) getAllArticles(w http.ResponseWriter, r *http.Request) {
 		failureResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	writeResponse(w, http.StatusCreated, util.SuccessMsg, articles)
+	writeResponse(w, http.StatusOK, util.SuccessMsg, articles)
 
 }
 

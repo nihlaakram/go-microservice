@@ -9,6 +9,10 @@ type Article struct {
 	Author  string `json:"author"`
 }
 
+type ArticleId struct {
+	Id int64 `json:"id"`
+}
+
 const insertArticleQuery = "INSERT INTO articles VALUES(?, ?, ?, ?)"
 const getArticleByIdQuery = "SELECT title, content, author  FROM articles WHERE id=?"
 
