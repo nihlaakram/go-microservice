@@ -9,8 +9,8 @@ type Article struct {
 	Author  string `json:"author"`
 }
 
-const insertArticleQuery  = "INSERT INTO articles VALUES(?, ?, ?, ?)"
-const getArticleByIdQuery  = "SELECT title, content, author  FROM articles WHERE id=?"
+const insertArticleQuery = "INSERT INTO articles VALUES(?, ?, ?, ?)"
+const getArticleByIdQuery = "SELECT title, content, author  FROM articles WHERE id=?"
 
 func (article *Article) AddArticle(db *sql.DB) error {
 	if res, err := db.Exec(insertArticleQuery, 0, article.Title, article.Content, article.Author); err != nil {

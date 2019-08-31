@@ -1,14 +1,15 @@
 package service
 
-import ("database/sql"
+import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 	"github.com/nihlaakram/go-microservice/pkg/model"
 	"github.com/nihlaakram/go-microservice/pkg/util"
 	"log"
-	"github.com/gorilla/mux"
 	"net/http"
-	_ "github.com/go-sql-driver/mysql"
 	"strconv"
 )
 
@@ -85,4 +86,3 @@ func writeResponse(w http.ResponseWriter, code int, message string, data interfa
 	w.WriteHeader(code)
 	w.Write(payload)
 }
-

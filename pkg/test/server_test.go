@@ -1,14 +1,13 @@
-package service_test
+package test
 
 import (
 	"github.com/nihlaakram/go-microservice/pkg/service"
+	"log"
 	"os"
 	"testing"
-	"log"
 )
 
-const tableCreationQuery =
-	`CREATE TABLE IF NOT EXISTS articles (
+const tableCreationQuery = `CREATE TABLE IF NOT EXISTS articles (
 		id INT NOT NULL AUTO_INCREMENT,
 		title VARCHAR(45) NULL,
 		content TEXT NULL,
@@ -23,8 +22,6 @@ func TestMain(m *testing.M) {
 	dbName := ""
 	//port := 8080
 	dbUser := "root"
-	dbPass = ""
-	dbName = "SweetFactoryDB"
 
 	server.Init(dbUser, dbPass, dbName, "localhost", "3306")
 	checkIfTableExists()
@@ -32,7 +29,6 @@ func TestMain(m *testing.M) {
 	deleteTableEntries()
 	os.Exit(code)
 }
-
 
 func checkIfTableExists() {
 	if _, err := server.DBCon.Exec(tableCreationQuery); err != nil {
