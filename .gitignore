@@ -12,3 +12,6 @@
 *.out
 
 .idea/
+
+# Script with environment variables
+exportvar.sh
