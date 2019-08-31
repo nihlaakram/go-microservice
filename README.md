@@ -111,18 +111,18 @@ Note: Make sure you have Golang and MySQL installed.
 
 ```
 // If you want to run tests
-export TEST_DB_USER=""
-export TEST_DB_NAME=""
-export TEST_DB_HOST=""
-export TEST_DB_PORT=""
-export TEST_DB_PASS=""
+export TEST_DB_USER="<test_db_user>"
+export TEST_DB_NAME="<test_db_name>"
+export TEST_DB_HOST="<test_db_host>"
+export TEST_DB_PORT="<test_db_port>"
+export TEST_DB_PASS="<test_db_pass>"
 
 // If you want to build the executable
-export DB_USER=""
-export DB_NAME=""
-export DB_HOST=""
-export DB_PORT=""
-export DB_PASS=""
+export DB_USER="<db_user>"
+export DB_NAME="<db_user>"
+export DB_HOST="<db_user>"
+export DB_PORT="<db_user>"
+export DB_PASS="<db_user>"
 
 ```
 (3). Run `start.sh test` to run tests and `start.sh` to build and run the executable.
