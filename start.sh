@@ -39,6 +39,8 @@ else
     rm -rf "build"
     cd cmd/
     go build -o $buildPath
+    echo "Starting service.."
+    ./../build/server
 fi
 
 
