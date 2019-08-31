@@ -22,7 +22,9 @@ func TestMain(m *testing.M) {
 	dbPass := ""
 	dbName := ""
 	//port := 8080
-	dbUser := ""
+	dbUser := "root"
+	dbPass = ""
+	dbName = "SweetFactoryDB"
 
 	server.Init(dbUser, dbPass, dbName, "localhost", "3306")
 	checkIfTableExists()

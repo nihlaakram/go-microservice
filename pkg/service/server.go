@@ -9,6 +9,7 @@ import ("database/sql"
 	"github.com/gorilla/mux"
 	"net/http"
 	_ "github.com/go-sql-driver/mysql"
+	"strconv"
 )
 
 type Server struct {
@@ -39,7 +40,7 @@ func (service *Server) Start(port int) {
 func (service *Server) initResource() {
 	service.Router.HandleFunc("/articles", service.addArticle).Methods(http.MethodPost)
 	service.Router.HandleFunc("/articles", nil).Methods(http.MethodGet)
-	service.Router.HandleFunc("/articles/{id:[0-9]+}", nil).Methods(http.MethodGet)
+	service.Router.HandleFunc("/articles/{id:[0-9]+}", service.getArticleByID).Methods(http.MethodGet)
 }
 
 func (service *Server) addArticle(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +59,20 @@ func (service *Server) addArticle(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, http.StatusCreated, util.SuccessMsg, article.Id)
 }
 
+func (service *Server) getArticleByID(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseInt(vars["id"], 0, 0)
+
+	article := model.Article{Id: id}
+	err := article.GetArticleById(service.DBCon)
+	if err != nil {
+		failureResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeResponse(w, http.StatusOK, "Success", article)
+}
+
 func failureResponse(w http.ResponseWriter, code int, message string) {
 	writeResponse(w, code, message, nil)
 }
@@ -70,3 +85,4 @@ func writeResponse(w http.ResponseWriter, code int, message string, data interfa
 	w.WriteHeader(code)
 	w.Write(payload)
 }
+
