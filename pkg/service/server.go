@@ -18,6 +18,13 @@ type Server struct {
 	DBCon  *sql.DB
 }
 
+const tableCreationQuery = `CREATE TABLE IF NOT EXISTS articles (
+		id INT NOT NULL AUTO_INCREMENT,
+		title VARCHAR(45) NULL,
+		content TEXT NULL,
+		author VARCHAR(45) NULL,
+	PRIMARY KEY (id));`
+
 // Initialize database connection and server route
 func (service *Server) Init(dbUser, dbPass, dbName, hostname, mysqlPort string) {
 
@@ -28,13 +35,17 @@ func (service *Server) Init(dbUser, dbPass, dbName, hostname, mysqlPort string) 
 		log.Fatal(err)
 	} else {
 		log.Println(util.DBConnectionSuccess)
+		if _, err := service.DBCon.Exec(tableCreationQuery); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	service.Router = mux.NewRouter()
 	service.initResource()
 }
 
-// Start the serverin given port
+
+// Start the server in given port
 func (service *Server) Start(port int) {
 	log.Println(fmt.Sprintf(util.StartingServer, port))
 	err := http.ListenAndServe(fmt.Sprintf(":%v", port), service.Router)
@@ -61,15 +72,8 @@ func (service *Server) addArticle(w http.ResponseWriter, r *http.Request) {
 		failureResponse(w, http.StatusBadRequest, util.BadRequestMsg)
 		return
 	}
-	//defer r.Body.Close()
 
-	func() {
-		err := r.Body.Close()
-		if err != nil {
-			failureResponse(w, http.StatusInternalServerError, err.Error())
-			log.Fatal(err)
-		}
-	}()
+	defer r.Body.Close()
 
 	if article.Title == "" || article.Content == "" || article.Author == "" {
 		failureResponse(w, http.StatusBadRequest, util.BadRequestMsg)
