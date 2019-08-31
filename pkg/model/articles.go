@@ -29,3 +29,24 @@ func (article *Article) AddArticle(db *sql.DB) error {
 func (article *Article) GetArticleById(db *sql.DB) error {
 	return db.QueryRow(getArticleByIdQuery, article.Id).Scan(&article.Title, &article.Content, &article.Author)
 }
+
+func GetAllArticles(db *sql.DB) ([]Article, error) {
+
+	result, err := db.Query("SELECT * FROM articles")
+	if err != nil {
+		return nil, err
+	}
+	defer result.Close()
+	articles := []Article{}
+
+	for result.Next() {
+		var article Article
+
+		if err = result.Scan(&article.Id, &article.Title, &article.Content, &article.Author); err != nil {
+			return nil, err
+		}
+		articles = append(articles, article)
+	}
+
+	return articles, nil
+}

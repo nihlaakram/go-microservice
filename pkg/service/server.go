@@ -40,7 +40,7 @@ func (service *Server) Start(port int) {
 
 func (service *Server) initResource() {
 	service.Router.HandleFunc("/articles", service.addArticle).Methods(http.MethodPost)
-	service.Router.HandleFunc("/articles", nil).Methods(http.MethodGet)
+	service.Router.HandleFunc("/articles", service.getAllArticles).Methods(http.MethodGet)
 	service.Router.HandleFunc("/articles/{id:[0-9]+}", service.getArticleByID).Methods(http.MethodGet)
 }
 
@@ -72,6 +72,17 @@ func (service *Server) getArticleByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeResponse(w, http.StatusOK, "Success", article)
+}
+
+
+func (service *Server) getAllArticles(w http.ResponseWriter, r *http.Request) {
+	articles, err := model.GetAllArticles(service.DBCon)
+	if err != nil {
+		failureResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeResponse(w, http.StatusCreated, util.SuccessMsg, articles)
+
 }
 
 func failureResponse(w http.ResponseWriter, code int, message string) {
